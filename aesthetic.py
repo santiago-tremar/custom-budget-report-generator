@@ -1,0 +1,35 @@
+import time
+
+def error():
+    print(' _ ___                 _ ')
+    print('(_) __|_ _ _ _ ___ _ _| |')
+    print("| | _|| '_| '_/ _ \ '_|_|")
+    print('|_|___|_| |_| \___/_| (_)')
+
+
+def instructions():
+    print('\nInstrucciones de uso:\n')
+    time.sleep(0.5)
+    print('\n1: Descargar la Balanza de comprobación de CONTPAQ-i en formato Excel.')
+    time.sleep(0.5)
+    print('  Importante no generar cambios en esos archivos.')
+    time.sleep(2)
+    print('\n2: Descargar la Plantilla de Presupuesto generado por este programa.')
+    time.sleep(0.5)
+    print('  Es la opción 2) del menú principal.')
+    time.sleep(2)
+    print('\n3: Llenar la Plantilla solamente con los números requeridos. No agregar columnas.')
+    time.sleep(0.5)
+    print('  Se pueden añadir renglones para cuentas nuevas. Los renglones que estén en ceros serán ignorados.')
+    time.sleep(2)
+    print('\n4: Colocar la Plantilla en la carpeta Presupuesto anual.')
+    time.sleep(0.5)
+    print('  Solamente debe haber un archivo en esta carpeta.')
+    time.sleep(2)
+    print('\n5: Escoger la opción 3 del menú principal para generar el archivo.')
+    time.sleep(2)
+    print('\n\nNota: Las carpetas deben estar en la misma ruta que este ejecutable.')
+    time.sleep(2)
+    print('\nPor ello se recomienda que el ejecutable esté en su propia carpeta, no en el Escritorio.')
+    time.sleep(2)
+    input('\nPresiona Enter para regresar al menú principal.')

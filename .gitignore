@@ -1,0 +1,9 @@
+.venv/
+.DS_Store
+__pycache__/
+Balanzas de Comprobacion/
+Presupuesto anual/
+static_files/
+reference_files/
+reporte_presupuesto_anual.xlsx
+plantilla_presupuestos.xlsx
