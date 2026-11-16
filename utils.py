@@ -27,6 +27,7 @@ def rawdata_get_xlsx(folder_path):
     # Concatenate properly whether there is 1 or multiple files
     rawdata = pd.concat(dataframes, ignore_index=True)
 
+    # Rename columns appropriately
     rawdata.columns = ['Cuenta',
                        'Nombre',
                        'Saldo Inicial: Deudor',
@@ -96,7 +97,7 @@ def month_year(folder_path):
         months.append(filename_month)
         years.append(filename_year)
 
-        return months, years
+    return months, years
 
 def prepare_rawdata(sequence, rawdata_folder_path):
     # Read Raw Data files and create DataFrame.
@@ -130,9 +131,9 @@ def build_result_dataframe(budget_df, last_rawdata, accum, helper_current_month)
     if len(budget_df.columns) == 3:
         type = 'a'
     elif len(budget_df.columns) == 15:
-      type ='m'
+        type ='m'
     else:
-      type = 'e' # Error in Budget Template fill.
+        type = 'e' # Error in Budget Template fill.
 
     #### Build Result DataFrame
     if type == 'a':

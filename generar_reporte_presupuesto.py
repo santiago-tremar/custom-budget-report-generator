@@ -4,13 +4,27 @@ from pathlib import Path
 import pandas as pd
 import time
 
-## Initialize Path names to be used.
+from environs import env
+
+## Read environment setting for switching folders dynamically.
+env.read_env()
+DEBUG = env.bool("DEBUG", default=False)
+
 application_path = Path(__file__).parent
-static_files_path = application_path / 'static_files'
-template_file = static_files_path / 'plantilla_presupuestos.xlsx'
-rawdata_folder_path = application_path / 'Balanzas de Comprobacion'
-budget_folder_path = application_path / 'Presupuesto anual'
-sequence_file = static_files_path/ 'secuencia_meses.csv'
+
+## Initialize Path names to be used.
+if DEBUG:
+    static_files_path = application_path / 'test_files'
+    template_file = static_files_path / 'plantilla_presupuestos.xlsx'
+    rawdata_folder_path = static_files_path / 'Balanzas de Comprobacion'
+    budget_folder_path = static_files_path / 'Presupuesto anual'
+    sequence_file = static_files_path/ 'secuencia_meses.csv'
+elif not DEBUG:
+    static_files_path = application_path / 'static_files'
+    template_file = static_files_path / 'plantilla_presupuestos.xlsx'
+    rawdata_folder_path = application_path / 'Balanzas de Comprobacion'
+    budget_folder_path = application_path / 'Presupuesto anual'
+    sequence_file = static_files_path/ 'secuencia_meses.csv'
 
 # Load helper files.
 sequence = pd.read_csv(sequence_file)

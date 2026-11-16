@@ -1,5 +1,7 @@
 .venv/
+.env
 .DS_Store
+.vscode/
 __pycache__/
 Balanzas de Comprobacion/
 Presupuesto anual/
