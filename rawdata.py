@@ -40,42 +40,47 @@ def rawdata_get_xlsx(folder_path):
 
     return rawdata
 
-def template_generator(type):
+def template_generator(save_path=None):
     """
-    Generate template to be used with the script.
+    Save automatic and manual budget templates to one workbook.
     """
     application_path = Path(__file__).parent
     static_files_path = application_path / 'static_files'
     template_path = static_files_path / 'account_names.csv'
     base_template = pd.read_csv(template_path, sep='\t')
 
-    while True:
-        print('Por favor selecciona una opción:')
-        type = input('¿Prorrateo \033[4mA\033[0mutomático o \033[4mM\033[0manual?: ').lower()
+    automatic_template = base_template.copy()
+    automatic_template['Presupuesto anual'] = ''
 
-        if type == 'a' or type == 'm':
-            break
-        else:
-            pass
+    manual_template = base_template.copy()
+    for month in (
+        'enero',
+        'febrero',
+        'marzo',
+        'abril',
+        'mayo',
+        'junio',
+        'julio',
+        'agosto',
+        'septiembre',
+        'octubre',
+        'noviembre',
+        'diciembre',
+    ):
+        manual_template[month] = ''
+    manual_template['Total'] = ''
 
-    if type == 'a': # 'a' de Automático
-        base_template['Presupuesto anual'] = ''
-    elif type == 'm': # 'm; de Manual
-        base_template['enero'] = ''
-        base_template['febrero'] = ''
-        base_template['marzo'] = ''
-        base_template['abril'] = ''
-        base_template['mayo'] = ''
-        base_template['junio'] = ''
-        base_template['julio'] = ''
-        base_template['agosto'] = ''
-        base_template['septiembre'] = ''
-        base_template['octubre'] = ''
-        base_template['noviembre'] = ''
-        base_template['diciembre'] = ''
-        base_template['Total'] = ''
+    output_path = (
+        Path(save_path)
+        if save_path is not None
+        else application_path / 'plantilla_presupuestos.xlsx'
+    )
+    with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+        automatic_template.to_excel(writer, sheet_name='Automático', index=False)
+        manual_template.to_excel(writer, sheet_name='Manual', index=False)
 
-    return base_template
+    display_str = f'\nPlantillas guardadas en: {output_path}\n'
+    return output_path, display_str
 
 def month_year(folder_path):
     # Read the names of the files of raw data.
@@ -118,39 +123,57 @@ def prepare_rawdata(sequence, rawdata_folder_path):
 
 
 def data_input_checks(rawdata_folder_path, budget_folder_path):
+    display_str = ''
+
     # Check Raw Data folder.
     files = list(rawdata_folder_path.glob('*.xlsx'))
+    message = '\n ####################################### \n'
+    display_str += message
     if not files:
-        aesthetic.error()
-        print('\nNo hay archivos .xlsx en la carpeta de Balanzas de Comprobación.')
-        print('Por favor agrega los archivos faltantes y vuelve a ejecutar el programa.')
+        message = '\nNo hay archivos .xlsx en la carpeta de Balanzas de Comprobación.'
+        print(message)
+        display_str += message + '\n'
+        message = 'Por favor agrega los archivos faltantes y vuelve a ejecutar el programa.'
+        print(message)
+        display_str += message + '\n'
         rawdata = 'n'
     else:
-        print('\nSe generará el reporte con las siguientes Balanzas de Comprobación:\n')
+        message = '\nSe generó el reporte con las siguientes Balanzas de Comprobación:\n'
+        print(message)
+        display_str += message + '\n'
         for file in files:
             file_basename = os.path.basename(file)
             print(file_basename)
-            time.sleep(0.5)
+            display_str += file_basename + '\n'
         rawdata = 'y'      
 
     # Check and create Budget folder.
     budget = list(budget_folder_path.glob('*.xlsx'))
     if len(budget) == 1 and rawdata == 'y':
-        print('\nY se generará con el siguiente presupuesto:')
-        time.sleep(0.5)
+        message = '\nY se generó con el siguiente presupuesto:'
+        print(message)
+        display_str += message + '\n'
+
         budget_filename = os.path.basename(budget[0]) ## Save the budget filename for later use.
         print(budget_filename)
-        time.sleep(0.5)
+        display_str += budget_filename + '\n'
+
         budget_data = 'y'
     elif len(budget) > 1:
-        aesthetic.error()
-        print('\nHay más de un archivo en la carpeta de Presupuesto anual.')
-        print('Favor de borrar los demás y dejar solamente el corriente.')
+        message = '\nHay más de un archivo en la carpeta de Presupuesto anual.'
+        print(message)
+        display_str += message + '\n'
+        message = 'Favor de borrar los demás y dejar solamente el corriente.'
+        print(message)
+        display_str += message + '\n'
         budget_data = 'n'
     elif len(budget) == 0:
-        aesthetic.error()
-        print('\nNo hay archivos .xlsx en la carpeta de Presupuesto anual.')
-        print('Por favor agrega el archivo faltante y vuelve a ejecutar el programa.')
+        message = '\nNo hay archivos .xlsx en la carpeta de Presupuesto anual.'
+        print(message)
+        display_str += message + '\n'
+        message = 'Por favor agrega el archivo faltante y vuelve a ejecutar el programa.'
+        print(message)
+        display_str += message + '\n'
         budget_data = 'n'
     else:
         budget_data = 'n'
@@ -161,4 +184,4 @@ def data_input_checks(rawdata_folder_path, budget_folder_path):
         can_continue = 'n'
         budget_filename = ''
 
-    return can_continue, budget_filename
+    return can_continue, budget_filename, display_str

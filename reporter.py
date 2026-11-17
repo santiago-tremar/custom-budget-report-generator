@@ -68,6 +68,7 @@ def build_result_dataframe(budget_df, last_rawdata, accum, helper_current_month)
     return results
 
 def final_touches(results):
+    """ Add TOTALS rows to base report, grouped by account Number. """
     # 1. Identify the category header rows
     is_header = results['Cuenta'].astype(str).str.endswith('000-000')
 
@@ -102,3 +103,25 @@ def final_touches(results):
     )
     final_result.loc[empty_accounts, 'CONCEPTO DEL GASTO'] = 'TOTAL'
     return final_result
+
+def summary_report(results):
+    """ Create secondary report, grouped by Concept name. """
+    working_result = results.drop(columns=['Cuenta','PRESUPUESTO MENSUAL','% EJERCIDO','POR EJERCER','VARIACION'])
+    working_result = working_result.groupby(
+        'CONCEPTO DEL GASTO',
+        as_index=False,
+    ).sum(numeric_only=True)
+
+    working_result['% VARIACION'] = working_result['EJER ACUM AL PERIODO'] / working_result['PRESUPUESTO ANUAL']
+    working_result['POR EJERCER'] = working_result['PRESUPUESTO ANUAL'] - working_result['EJER ACUM AL PERIODO']
+
+    subtotal = {column: np.nan for column in working_result.columns}
+    subtotal['CONCEPTO DEL GASTO'] = 'SUBTOTAL OPERATIVO'
+    subtotal['PRESUPUESTO ANUAL'] = working_result['PRESUPUESTO ANUAL'].sum()
+    subtotal['EJER ACUM AL PERIODO'] = working_result['EJER ACUM AL PERIODO'].sum()
+    working_result = pd.concat(
+        [working_result, pd.DataFrame([subtotal])],
+        ignore_index=True,
+    )
+
+    return working_result

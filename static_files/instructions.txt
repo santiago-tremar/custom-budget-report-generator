@@ -1,0 +1,9 @@
+1. Al ejecutarse este programa, se crearán las carpetas "Balanzas de Comprobacion" y "Presupuesto anual", en caso de no existir ya. Favor de confirmar su existencia.
+
+2. En la carpeta de Balanzas de Comprobación se deben colocar los archivos generados por CONTPAQ-i, en formato Excel. Es importante no realizar cambios en ellos.
+
+3. En la carpeta de Presupuesto anual, coloca el archivo Excel que contenga el Presupuesto del año*
+
+4. Cuando estén los archivos en sus carpetas correspondientes, hacer clic en el botón "Generar reporte". El resultado se guardará en el mismo directorio donde está este programa.
+
+*El Presupuesto debe hacerse manualmente siguiendo el ejemplo, que se puede descargar haciendo clic en el botón correspondiente. Una columna para los números de cuenta, otra para sus nombres, y otra para el presupuesto asignado. Si se va a asignar un prorrateo manualmente, usar como ejemplo la Hoja 2 del ejemplo.

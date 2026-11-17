@@ -12,7 +12,8 @@ from rawdata import (
 from reporter import(
     accumulated_expenditures,
     build_result_dataframe,
-    final_touches
+    final_touches,
+    summary_report,
 )
 
 @pytest.fixture
@@ -117,3 +118,25 @@ def test_result_calculation_after_grouping_totals(budget_file,rawdata_folder_pat
     assert len(total_rows) == 1
     assert total_rows['EJERCIDO EN EL MES'].iloc[0] == expected_spent
     assert results_grouped['EJER ACUM AL PERIODO'].iloc[-2] != 0
+
+def test_summary_report_adds_operating_subtotal():
+    results = pd.DataFrame({
+        'Cuenta': ['001', '002'],
+        'CONCEPTO DEL GASTO': ['OPERACION A', 'OPERACION B'],
+        'PRESUPUESTO ANUAL': [100, 200],
+        'PRESUPUESTO MENSUAL': [10, 20],
+        'EJER ACUM AL PERIODO': [30, 40],
+        'EJERCIDO EN EL MES': [5, 15],
+        'VARIACION': [5, 5],
+        '% EJERCIDO': [0.3, 0.2],
+        'POR EJERCER': [70, 160],
+    })
+
+    summary = summary_report(results)
+    subtotal = summary.iloc[-1]
+
+    assert subtotal['CONCEPTO DEL GASTO'] == 'SUBTOTAL OPERATIVO'
+    assert subtotal['PRESUPUESTO ANUAL'] == 300
+    assert subtotal['EJER ACUM AL PERIODO'] == 70
+    assert pd.isna(subtotal['% VARIACION'])
+    assert pd.isna(subtotal['POR EJERCER'])

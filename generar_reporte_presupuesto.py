@@ -32,12 +32,12 @@ application_path = (
 ## Initialize Path names to be used.
 if DEBUG:
     static_files_path = application_path / 'test_files'
-    template_file = static_files_path / 'plantilla_presupuestos.xlsx'
+    template_file = application_path / 'plantilla_presupuestos.xlsx'
     rawdata_folder_path = static_files_path / 'Balanzas de Comprobacion'
     budget_folder_path = static_files_path / 'Presupuesto anual'
 elif not DEBUG:
     static_files_path = application_path / 'static_files'
-    template_file = static_files_path / 'plantilla_presupuestos.xlsx'
+    template_file = application_path / 'plantilla_presupuestos.xlsx'
     rawdata_folder_path = application_path / 'Balanzas de Comprobacion'
     budget_folder_path = application_path / 'Presupuesto anual'
 
@@ -100,15 +100,14 @@ while True:
             time.sleep(0.5)
             print(f'Se descargará automáticamente en {application_path}')
             time.sleep(0.5)
-            template = template_generator(type)
-            template.to_excel('plantilla_presupuestos.xlsx',index=False)
+            template_generator(template_file)
             print('¡Plantilla descargada!')
             time.sleep(0.5)
+            plantilla = 'y'
             download = 'n'
 
         if download == 'y':
-            template = template_generator(type)
-            template.to_excel('plantilla_presupuestos.xlsx',index=False)
+            template_generator(template_file)
             print('¡Plantilla descargada!')
             time.sleep(0.5)
         elif download == 'n':
@@ -116,7 +115,10 @@ while True:
 
     elif choice == 3:
         ## Check for missing input files, if any.
-        can_continue, budget_filename = data_input_checks(rawdata_folder_path,budget_folder_path)
+        can_continue, budget_filename, _ = data_input_checks(
+            rawdata_folder_path,
+            budget_folder_path,
+        )
 
         if can_continue == 'y':
             # region Preparation of all data needed to construct results.
