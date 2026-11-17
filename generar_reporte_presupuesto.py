@@ -1,16 +1,33 @@
 import aesthetic
-import utils
 from pathlib import Path
 import pandas as pd
 import time
+import sys
 
 from environs import env
+
+from rawdata import (
+    prepare_rawdata,
+    data_input_checks,
+    template_generator,
+)
+
+from reporter import (
+    accumulated_expenditures,
+    build_result_dataframe,
+    final_touches)
+
+from exceler import excel_styler
 
 ## Read environment setting for switching folders dynamically.
 env.read_env()
 DEBUG = env.bool("DEBUG", default=False)
 
-application_path = Path(__file__).parent
+application_path = (
+    Path(sys.executable).resolve().parent
+    if getattr(sys, 'frozen', False)
+    else Path(__file__).resolve().parent
+)
 
 ## Initialize Path names to be used.
 if DEBUG:
@@ -18,13 +35,14 @@ if DEBUG:
     template_file = static_files_path / 'plantilla_presupuestos.xlsx'
     rawdata_folder_path = static_files_path / 'Balanzas de Comprobacion'
     budget_folder_path = static_files_path / 'Presupuesto anual'
-    sequence_file = static_files_path/ 'secuencia_meses.csv'
 elif not DEBUG:
     static_files_path = application_path / 'static_files'
     template_file = static_files_path / 'plantilla_presupuestos.xlsx'
     rawdata_folder_path = application_path / 'Balanzas de Comprobacion'
     budget_folder_path = application_path / 'Presupuesto anual'
-    sequence_file = static_files_path/ 'secuencia_meses.csv'
+
+# This file is relative to the temporary files because it will be packaged into PyInstaller
+sequence_file = Path(__file__).resolve().parent / 'static_files' / 'secuencia_meses.csv' 
 
 # Load helper files.
 sequence = pd.read_csv(sequence_file)
@@ -82,14 +100,14 @@ while True:
             time.sleep(0.5)
             print(f'Se descargará automáticamente en {application_path}')
             time.sleep(0.5)
-            template = utils.template_generator(type)
+            template = template_generator(type)
             template.to_excel('plantilla_presupuestos.xlsx',index=False)
             print('¡Plantilla descargada!')
             time.sleep(0.5)
             download = 'n'
 
         if download == 'y':
-            template = utils.template_generator(type)
+            template = template_generator(type)
             template.to_excel('plantilla_presupuestos.xlsx',index=False)
             print('¡Plantilla descargada!')
             time.sleep(0.5)
@@ -98,11 +116,11 @@ while True:
 
     elif choice == 3:
         ## Check for missing input files, if any.
-        can_continue, budget_filename = utils.data_input_checks(rawdata_folder_path,budget_folder_path)
+        can_continue, budget_filename = data_input_checks(rawdata_folder_path,budget_folder_path)
 
         if can_continue == 'y':
             # region Preparation of all data needed to construct results.
-            rawdata, helper_month_year, helper_current_month = utils.prepare_rawdata(sequence,rawdata_folder_path)
+            rawdata, helper_month_year, helper_current_month = prepare_rawdata(sequence,rawdata_folder_path)
 
             # Read template and create DataFrame.
             budget_file = budget_folder_path / budget_filename
@@ -115,17 +133,17 @@ while True:
             last_rawdata = rawdata_budgeted[rawdata_budgeted['Origen']==helper_month_year]
 
             # Get accumulated expenditures for use in the Result.
-            accum = utils.accumulated_expenditures(rawdata_budgeted)
+            accum = accumulated_expenditures(rawdata_budgeted)
             # endregion
 
             # Automatically assign Result method by template type.
-            results = utils.build_result_dataframe(budget_df, last_rawdata, accum, helper_current_month)
+            results = build_result_dataframe(budget_df, last_rawdata, accum, helper_current_month)
            
-            results = utils.final_touches(results)
+            results = final_touches(results)
            
             print('\n¡Se generó el reporte!')
             print('Se ha guardado con el nombre "reporte_presupuesto_anual.xlsx" ')
-            utils.excel_styler(results, 'reporte_presupuesto_anual.xlsx')
+            excel_styler(results, 'reporte_presupuesto_anual.xlsx')
             break
         elif can_continue == 'n':
             break

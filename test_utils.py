@@ -2,13 +2,17 @@ import pytest
 
 import pandas as pd
 from pathlib import Path
-from utils import (
+
+from rawdata import (
     rawdata_get_xlsx,
     month_year,
     prepare_rawdata,
+    )
+
+from reporter import(
     accumulated_expenditures,
     build_result_dataframe,
-    final_touches,
+    final_touches
 )
 
 @pytest.fixture
@@ -112,3 +116,4 @@ def test_result_calculation_after_grouping_totals(budget_file,rawdata_folder_pat
 
     assert len(total_rows) == 1
     assert total_rows['EJERCIDO EN EL MES'].iloc[0] == expected_spent
+    assert results_grouped['EJER ACUM AL PERIODO'].iloc[-2] != 0
